@@ -177,10 +177,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f67ea7c7e9778a74bb001a69c06644d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ScaleX: 100
-  ScaleY: 100
-  RoomNumber: 100
-  Layer: 1
+  ScaleX: 999
+  ScaleY: 999
+  RoomNumber: 999
+  Layer: 3
+  RoomPrefab: {fileID: 2218940280186229236, guid: ad7411dd43c467b4a8e01a99bb45dca2,
+    type: 3}
+  StaircasePrefab: {fileID: 7760324523608606670, guid: 4031ed9c582838a40bc4009436ae7664,
+    type: 3}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

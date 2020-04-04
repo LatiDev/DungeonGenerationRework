@@ -46,7 +46,7 @@ public class GenerateMapable
 
         return StairCase;
     }
-    public IEnumerable<Mapable_Info[,]> Generate(int sx, int sy, int rn, int ln)
+    public IEnumerable<GenerationData> Generate(int sx, int sy, int rn, int ln)
     {
         int StarterX = Random.Range(0, sx);
         int StarterY = Random.Range(0, sy);
@@ -56,12 +56,16 @@ public class GenerateMapable
 
         GenerationData CurrentGenerationData = GenerateNew(StarterX, StarterY, 0, StarterData);
 
+        yield return CurrentGenerationData;
+
+        
         for (int l = 0; l < ln; l++)
         {
             CurrentGenerationData = GenerateFromLastGen(CurrentGenerationData);
 
-            yield return CurrentGenerationData.Layer;
+            yield return CurrentGenerationData;
         }
+        
     }
 
     private GenerationData GenerateFromLastGen(GenerationData GD)
@@ -124,11 +128,13 @@ public class GenerateMapable
                 if (Direction == RelativePosition.East)     LastRoomX++;
                 if (Direction == RelativePosition.West)     LastRoomX--;
 
-                Layer[LastRoomX, LastRoomY] = new Mapable_Info(LastRoomY, LastRoomX);
+                Layer[LastRoomX, LastRoomY] = new Mapable_Info(LastRoomX, LastRoomY);
             }
         }
-        
-        return CreateGenerationData(LastRoomX, LastRoomY, LastRoomZ, this.LastGenerationData.RoomNumber, Layer);
+
+        this.LastGenerationData = CreateGenerationData(LastRoomX, LastRoomY, LastRoomZ, this.LastGenerationData.RoomNumber, Layer);
+
+        return this.LastGenerationData;
     }
     
 }
