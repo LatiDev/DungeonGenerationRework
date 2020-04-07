@@ -4,5 +4,5 @@ using UnityEngine;
 
 public class Mapable : MonoBehaviour
 {
-    public Vector2 Position;
+    public Vector3Int Position;
 }

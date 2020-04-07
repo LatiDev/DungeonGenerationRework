@@ -6,50 +6,62 @@ using System;
 
 public class LayerGenerator : MonoBehaviour
 {
-    [SerializeField] [Range(10, 999)] private int ScaleX = 100;
-    [SerializeField] [Range(10, 999)] private int ScaleY = 100;
+    [SerializeField] [Range(10, 999)]   private int ScaleX = 100;
+    [SerializeField] [Range(1, 100)]    private int ScaleY = 1;
+    [SerializeField] [Range(10, 999)]   private int ScaleZ = 100;
+
     [SerializeField] [Range(10, 999)] private int RoomNumber = 100;
-    [SerializeField] [Range(1, 100)] private int Layer = 1;
 
     [SerializeField] private GameObject RoomPrefab;
     [SerializeField] private GameObject StaircasePrefab;
+    [SerializeField] private Transform RoomParent;
 
-    private GenerateMapable GM = new GenerateMapable();
+    private MapGenerator MG = new MapGenerator();
     
     private void Update()
     {
-        foreach(GenerationData g in GM.Generate(ScaleX, ScaleY, RoomNumber, Layer))
+        foreach(LayerData g in MG.Generate(new Vector3Int(ScaleX, ScaleY, ScaleZ), RoomNumber))
         {
-            Create(g.Layer, ScaleX, ScaleY);
+            CreateLayer(g.Layer, ScaleX, ScaleZ, g.LastRoom.Position.y);
         }   
     }
-
-    public void Create(Mapable_Info[,] l, int sx, int sy)
+    public Transform CreateLayer(int n)
     {
+        GameObject lo = new GameObject();
+
+        lo.name = $"Layer {n}";
+        lo.transform.SetParent(RoomParent);
+
+        return lo.transform;
+    }
+    public void CreateRoom(GameObject g, Transform t, Vector3Int p)
+    {
+        GameObject r = Instantiate(g);
+        r.transform.position = p * 10;
+        r.transform.SetParent(t);
+
+        Mapable m = r.GetComponent<Mapable>();
+        m.Position = p;
+    }
+    public void CreateLayer(RoomData[,] l, int sx, int sz, int layernumber)
+    {
+        Transform Layer = CreateLayer(layernumber);
+        
         for (int x = 0; x < sx; x++) 
         { 
-            for (int y = 0; y < sy; y++)
+            for (int z = 0; z < sz; z++)
             {
-                Mapable_Info Mapable = l[x, y];
+                RoomData rd = l[x, z];
                 
-                if (Mapable != null)
+                if (rd.IsActive == true)
                 {
-                    if (Mapable.IsPlatform)
+                    if (rd.Type == RoomData.RoomType.Platform)
                     {
-                        GameObject r = Instantiate(StaircasePrefab);
-                        r.transform.position = new Vector3(Mapable.Map_X, Mapable.Map_Z, Mapable.Map_Y) * 10;
-
-                        Mapable m = r.GetComponent<Mapable>();
-                        m.Position = new Vector2(Mapable.Map_X, Mapable.Map_Y);
-                    
+                        CreateRoom(StaircasePrefab, Layer, rd.Position);                  
                     }
                     else
                     {
-                        GameObject r = Instantiate(RoomPrefab);
-                        r.transform.position = new Vector3(Mapable.Map_X, Mapable.Map_Z, Mapable.Map_Y) * 10;
-
-                        Mapable m = r.GetComponent<Mapable>();
-                        m.Position = new Vector2(Mapable.Map_X, Mapable.Map_Y);
+                        CreateRoom(RoomPrefab, Layer, rd.Position);
                     }                                       
                 }
             }

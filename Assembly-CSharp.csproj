@@ -64,11 +64,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Dungeon\DungeonCreator.cs" />
-    <Compile Include="Assets\Scripts\Dungeon\Extencion_.cs" />
-    <Compile Include="Assets\Scripts\Dungeon\GenerateMapable.cs" />
-    <Compile Include="Assets\Scripts\Dungeon\GenerationData.cs" />
+    <Compile Include="Assets\Scripts\Dungeon\LayerData.cs" />
     <Compile Include="Assets\Scripts\Dungeon\LayerGenerator.cs" />
-    <Compile Include="Assets\Scripts\Dungeon\Mapable_Info.cs" />
+    <Compile Include="Assets\Scripts\Dungeon\MapGenerator.cs" />
     <Compile Include="Assets\Scripts\Dungeon\RelativePosition.cs" />
     <Compile Include="Assets\Scripts\Dungeon\RoomData.cs" />
     <Compile Include="Assets\Scripts\Room\Mapable.cs" />

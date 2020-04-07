@@ -4,5 +4,23 @@ using UnityEngine;
 
 public struct RoomData
 {
-    public int x, y, z;
+    public enum RoomType
+    {
+        Basic,
+        Start,        
+        Platform,
+        End
+    }
+            
+    public Vector3Int Position;
+    public RoomType Type;
+    public bool IsActive;
+
+    public void Configure(Vector3Int p, RoomType t)
+    {
+        this.Position = p;
+        this.Type = t;
+
+        this.IsActive = true;
+    }
 }
