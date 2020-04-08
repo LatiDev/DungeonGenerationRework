@@ -20,8 +20,12 @@ public class LayerGenerator : MonoBehaviour
 
     private void Update()
     {
-        RoomData[] AllRoom = MG.Generate(new Vector3Int(ScaleX, ScaleY, ScaleZ), RoomNumber);
-        CreateLayer(AllRoom);
+        Transform cl = CreateLayer(0);
+
+        foreach (RoomData rd in MG.Generate(new Vector3Int(ScaleX, ScaleY, ScaleZ), RoomNumber))
+        {
+            CreateRoom(rd, cl);
+        }
     }
     public Transform CreateLayer(int n)
     {
@@ -32,7 +36,7 @@ public class LayerGenerator : MonoBehaviour
 
         return lo.transform;
     }
-    public void CreateRoom(GameObject g, Transform t, Vector3Int p)
+    public void CreateRoom(GameObject g, Transform t, Vector3Int p, List<RelativePosition> rp)
     {
         GameObject r = Instantiate(g);
         r.transform.position = p * 10;
@@ -40,24 +44,19 @@ public class LayerGenerator : MonoBehaviour
 
         Mapable m = r.GetComponent<Mapable>();
         m.Position = p;
-    }
-    public void CreateLayer(RoomData[] l)
-    {
-        Transform Layer = CreateLayer(0);
 
-        foreach (RoomData rd in l)
+        Room room = r.GetComponent<Room>();
+        room.SetWall(rp);       
+    }
+    public void CreateRoom(RoomData rd, Transform p)
+    {
+        if (rd.Type == RoomData.RoomType.Platform)
         {
-            if (rd.IsActive == true)
-            {
-                if (rd.Type == RoomData.RoomType.Platform)
-                {
-                    CreateRoom(StaircasePrefab, Layer, rd.Position);
-                }
-                else
-                {
-                    CreateRoom(RoomPrefab, Layer, rd.Position);
-                }
-            }
+            CreateRoom(StaircasePrefab, p, rd.Position, rd.WallActivated);
+        }
+        else
+        {
+            CreateRoom(RoomPrefab, p, rd.Position, rd.WallActivated);
         }
     }
 }

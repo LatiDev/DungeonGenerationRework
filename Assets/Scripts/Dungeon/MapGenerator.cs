@@ -15,8 +15,13 @@ public class MapGenerator
 
         return new Vector3Int(Randx, 0, RandZ);
     }    
+    public IEnumerable<RoomData> Generate(Vector3Int Scale, int RoomNumber)
+    {
+        RoomData[] AllRoom = GenerateMap(Scale, RoomNumber);
 
-    public RoomData[] Generate(Vector3Int Scale, int RoomNumber)
+        foreach (RoomData rd in SetupWall(AllRoom)) yield return rd;
+    }
+    public RoomData[] GenerateMap(Vector3Int Scale, int RoomNumber)
     {
         this.CurrentLayer = new RoomData[Scale.x, Scale.z];
         this.LayerScale = Scale;
@@ -38,6 +43,19 @@ public class MapGenerator
 
         return AllRoom.ToArray();
     }
+    public IEnumerable<RoomData> SetupWall(RoomData[] rs)
+    {                
+        foreach (RoomData rd in rs)
+        {
+            List<RelativePosition> p = LookAroundARoom(rd.Position, true);
+
+            RoomData NewRoom = rd;
+            NewRoom.WallActivated = p;
+
+            yield return NewRoom;            
+        }
+    }
+
     private RoomData PlaceRoom(Vector3Int LastRoomPos)
     {
         List<RelativePosition> _moves = LookAroundARoom(LastRoomPos);
@@ -59,17 +77,17 @@ public class MapGenerator
             return SetRoomAt(LastRoomPos, GetBasicRoom);
         }
     }
-    private List<RelativePosition> LookAroundARoom(Vector3Int RoomPosition)
+    private List<RelativePosition> LookAroundARoom(Vector3Int RoomPosition, bool Advanced = false)
     {
         List<RelativePosition> _moves = new List<RelativePosition>();
 
         if (RoomPosition.x < this.LayerScale.x - 1 && RoomPosition.x > 0)
         {
-            if (this.CurrentLayer[RoomPosition.x + 1, RoomPosition.z].IsActive == false)
+            if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.East))
             {
                 _moves.Add(RelativePosition.East);
             }
-            if (this.CurrentLayer[RoomPosition.x - 1, RoomPosition.z].IsActive == false)
+            if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.West))
             {
                 _moves.Add(RelativePosition.West);
             }
@@ -77,19 +95,82 @@ public class MapGenerator
 
         if (RoomPosition.z < this.LayerScale.z - 1 && RoomPosition.z > 0)
         {
-            if (this.CurrentLayer[RoomPosition.x, RoomPosition.z + 1].IsActive == false)
+            if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.North))
             {
                 _moves.Add(RelativePosition.North);
             }
-            if (this.CurrentLayer[RoomPosition.x, RoomPosition.z - 1].IsActive == false)
+            if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.South))
             {
                 _moves.Add(RelativePosition.South);
             }
         }
 
+        if (Advanced)
+        {
+            if (RoomPosition.x < this.LayerScale.x - 1 && RoomPosition.x > 0)
+            {
+                if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.North_East) || 
+                    IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.North) ||
+                    IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.East))
+                {
+                    _moves.Add(RelativePosition.North_East);
+                }
+                if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.North_West) ||
+                    IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.North) ||
+                    IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.West))
+                {
+                    _moves.Add(RelativePosition.North_West);
+                }
+            }
+            if (RoomPosition.z < this.LayerScale.z - 1 && RoomPosition.z > 0)
+            {
+                if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.South_East) || 
+                    IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.East) ||
+                    IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.South))
+                {
+                    _moves.Add(RelativePosition.South_East);
+                }
+                if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.South_West) || 
+                    IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.West) ||
+                    IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.South))
+                {
+                    _moves.Add(RelativePosition.South_West);
+                }
+            }
+        }
+
         return _moves;
     }
-    public RoomData SetRoomAt(Vector3Int Pos, System.Func<Vector3Int, RoomData> F)
+    private bool IsNoRoomAt(int RoomX, int RoomZ, RelativePosition p)
+    {
+        switch (p)
+        {
+            case RelativePosition.North:
+                return this.CurrentLayer[RoomX, RoomZ + 1].IsActive == false;
+            case RelativePosition.South:
+                return this.CurrentLayer[RoomX, RoomZ - 1].IsActive == false;
+            case RelativePosition.East:
+                return this.CurrentLayer[RoomX + 1, RoomZ].IsActive == false;
+            case RelativePosition.West:
+                return this.CurrentLayer[RoomX - 1, RoomZ].IsActive == false;
+
+            case RelativePosition.North_East:
+                return this.CurrentLayer[RoomX + 1, RoomZ + 1].IsActive == false;
+            case RelativePosition.North_West:
+                return this.CurrentLayer[RoomX - 1, RoomZ + 1].IsActive == false;
+            case RelativePosition.South_East:
+                return this.CurrentLayer[RoomX + 1, RoomZ - 1].IsActive == false;
+            case RelativePosition.South_West:
+                return this.CurrentLayer[RoomX - 1, RoomZ - 1].IsActive == false;
+
+
+            default:
+                return false;
+        }
+    }
+
+
+    private RoomData SetRoomAt(Vector3Int Pos, System.Func<Vector3Int, RoomData> F)
     {
         RoomData r = F(Pos);
         this.CurrentLayer[Pos.x, Pos.z] = r;

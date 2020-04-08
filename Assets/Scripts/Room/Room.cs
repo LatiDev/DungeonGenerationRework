@@ -24,5 +24,39 @@ public class Room : MonoBehaviour
     {
         //if (WallParent.activeSelf) { WallParent.SetActive(false); }
     }
+    public void SetWall(List<RelativePosition> poss)
+    {
+        foreach (RelativePosition pos in poss) { WallSetup(pos); }
+    }
+    private void WallSetup(RelativePosition rp)
+    {
+        switch (rp)
+        {
+            case RelativePosition.North:
+                this.FowardWall.SetActive(true);
+                break;
+            case RelativePosition.South:
+                this.BackwardWall.SetActive(true);
+                break;
+            case RelativePosition.East:
+                this.RigthWall.SetActive(true);
+                break;
+            case RelativePosition.West:
+                this.LeftWall.SetActive(true);
+                break;
 
+            case RelativePosition.North_East:
+                this.FowardRigthCorner.SetActive(true);
+                break;
+            case RelativePosition.North_West:
+                this.FowardLeftCorner.SetActive(true);
+                break;
+            case RelativePosition.South_East:
+                this.BackwardRigthCorner.SetActive(true);
+                break;
+            case RelativePosition.South_West:
+                this.BackwardLeftCorner.SetActive(true);
+                break;
+        }
+    }
 }
