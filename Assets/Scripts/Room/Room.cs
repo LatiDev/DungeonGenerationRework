@@ -6,6 +6,7 @@ using UnityEngine;
 public class Room : MonoBehaviour
 {
     [SerializeField] private GameObject Base;
+    [SerializeField] private GameObject WallParent;
 
     [Header("Walls")]
     [SerializeField] private GameObject FowardWall;
@@ -19,6 +20,9 @@ public class Room : MonoBehaviour
     [SerializeField] private GameObject BackwardRigthCorner;
     [SerializeField] private GameObject BackwardLeftCorner;
 
-
+    private void Start()
+    {
+        //if (WallParent.activeSelf) { WallParent.SetActive(false); }
+    }
 
 }

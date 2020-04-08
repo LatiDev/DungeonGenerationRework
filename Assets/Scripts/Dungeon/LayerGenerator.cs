@@ -6,9 +6,9 @@ using System;
 
 public class LayerGenerator : MonoBehaviour
 {
-    [SerializeField] [Range(10, 999)]   private int ScaleX = 100;
-    [SerializeField] [Range(1, 100)]    private int ScaleY = 1;
-    [SerializeField] [Range(10, 999)]   private int ScaleZ = 100;
+    [SerializeField] [Range(10, 999)] private int ScaleX = 100;
+    [SerializeField] [Range(1, 100)] private int ScaleY = 1;
+    [SerializeField] [Range(10, 999)] private int ScaleZ = 100;
 
     [SerializeField] [Range(10, 999)] private int RoomNumber = 100;
 
@@ -17,13 +17,11 @@ public class LayerGenerator : MonoBehaviour
     [SerializeField] private Transform RoomParent;
 
     private MapGenerator MG = new MapGenerator();
-    
+
     private void Update()
     {
-        foreach(LayerData g in MG.Generate(new Vector3Int(ScaleX, ScaleY, ScaleZ), RoomNumber))
-        {
-            CreateLayer(g.Layer, ScaleX, ScaleZ, g.LastRoom.Position.y);
-        }   
+        RoomData[] AllRoom = MG.Generate(new Vector3Int(ScaleX, ScaleY, ScaleZ), RoomNumber);
+        CreateLayer(AllRoom);
     }
     public Transform CreateLayer(int n)
     {
@@ -43,26 +41,21 @@ public class LayerGenerator : MonoBehaviour
         Mapable m = r.GetComponent<Mapable>();
         m.Position = p;
     }
-    public void CreateLayer(RoomData[,] l, int sx, int sz, int layernumber)
+    public void CreateLayer(RoomData[] l)
     {
-        Transform Layer = CreateLayer(layernumber);
-        
-        for (int x = 0; x < sx; x++) 
-        { 
-            for (int z = 0; z < sz; z++)
+        Transform Layer = CreateLayer(0);
+
+        foreach (RoomData rd in l)
+        {
+            if (rd.IsActive == true)
             {
-                RoomData rd = l[x, z];
-                
-                if (rd.IsActive == true)
+                if (rd.Type == RoomData.RoomType.Platform)
                 {
-                    if (rd.Type == RoomData.RoomType.Platform)
-                    {
-                        CreateRoom(StaircasePrefab, Layer, rd.Position);                  
-                    }
-                    else
-                    {
-                        CreateRoom(RoomPrefab, Layer, rd.Position);
-                    }                                       
+                    CreateRoom(StaircasePrefab, Layer, rd.Position);
+                }
+                else
+                {
+                    CreateRoom(RoomPrefab, Layer, rd.Position);
                 }
             }
         }

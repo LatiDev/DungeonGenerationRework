@@ -14,6 +14,7 @@ public struct RoomData
             
     public Vector3Int Position;
     public RoomType Type;
+    public List<RelativePosition> WallActivated;
     public bool IsActive;
 
     public void Configure(Vector3Int p, RoomType t)

@@ -5,25 +5,98 @@ using UnityEngine;
 
 public class MapGenerator
 {
-    private LayerData LastGenerationData;
-    
+    private RoomData[,] CurrentLayer;
+    private Vector3Int LayerScale;
 
-    public void SetBasicData(int sx, int sz, int rn)
+    private Vector3Int GetRandomPosition(int x, int z) 
     {
-        this.LastGenerationData.Scale = new Vector3Int(sx, 0, sz);        
-        this.LastGenerationData.RoomNumber = rn;
-    }
-    public LayerData CreateGenerationData(Vector3Int StartPos, Vector3Int EndPos, int rn, RoomData[,] layer)
+        int Randx = Random.Range(0, x);
+        int RandZ = Random.Range(0, z);
+
+        return new Vector3Int(Randx, 0, RandZ);
+    }    
+
+    public RoomData[] Generate(Vector3Int Scale, int RoomNumber)
     {
-        LayerData GD = new LayerData();
-        GD.RoomNumber = rn;
+        this.CurrentLayer = new RoomData[Scale.x, Scale.z];
+        this.LayerScale = Scale;
 
-        GD.StartPositon = StartPos;
-        GD.EndPosition = EndPos;
+        List<RoomData> AllRoom = new List<RoomData>(RoomNumber); 
 
-        GD.Layer = layer;
-        return GD;
+        Vector3Int StarterPositon3D = GetRandomPosition(this.LayerScale.x, this.LayerScale.z);
+        RoomData StarterData = SetRoomAt(StarterPositon3D, GetStarter);
+        AllRoom.Add(StarterData);
+
+        Vector3Int LastPosition = StarterData.Position;
+        for (int rn = 0; rn < RoomNumber; rn++)
+        {
+            RoomData room = PlaceRoom(LastPosition);
+            LastPosition = room.Position;
+
+            AllRoom.Add(room);
+        }
+
+        return AllRoom.ToArray();
     }
+    private RoomData PlaceRoom(Vector3Int LastRoomPos)
+    {
+        List<RelativePosition> _moves = LookAroundARoom(LastRoomPos);
+
+        if (_moves.Count == 0)
+        {
+            //Layer[LastRoomX, LastRoomY] = GetStairCase(LastRoomX, LastRoomY, LastRoomZ);            
+            return SetRoomAt(LastRoomPos, GetBasicRoom);
+        }
+        else
+        {
+            RelativePosition Direction = _moves[Random.Range(0, _moves.Count)];
+
+            if (Direction == RelativePosition.North) LastRoomPos.z++;
+            if (Direction == RelativePosition.South) LastRoomPos.z--;
+            if (Direction == RelativePosition.East) LastRoomPos.x++;
+            if (Direction == RelativePosition.West) LastRoomPos.x--;
+
+            return SetRoomAt(LastRoomPos, GetBasicRoom);
+        }
+    }
+    private List<RelativePosition> LookAroundARoom(Vector3Int RoomPosition)
+    {
+        List<RelativePosition> _moves = new List<RelativePosition>();
+
+        if (RoomPosition.x < this.LayerScale.x - 1 && RoomPosition.x > 0)
+        {
+            if (this.CurrentLayer[RoomPosition.x + 1, RoomPosition.z].IsActive == false)
+            {
+                _moves.Add(RelativePosition.East);
+            }
+            if (this.CurrentLayer[RoomPosition.x - 1, RoomPosition.z].IsActive == false)
+            {
+                _moves.Add(RelativePosition.West);
+            }
+        }
+
+        if (RoomPosition.z < this.LayerScale.z - 1 && RoomPosition.z > 0)
+        {
+            if (this.CurrentLayer[RoomPosition.x, RoomPosition.z + 1].IsActive == false)
+            {
+                _moves.Add(RelativePosition.North);
+            }
+            if (this.CurrentLayer[RoomPosition.x, RoomPosition.z - 1].IsActive == false)
+            {
+                _moves.Add(RelativePosition.South);
+            }
+        }
+
+        return _moves;
+    }
+    public RoomData SetRoomAt(Vector3Int Pos, System.Func<Vector3Int, RoomData> F)
+    {
+        RoomData r = F(Pos);
+        this.CurrentLayer[Pos.x, Pos.z] = r;
+
+        return r;
+    }
+
     public RoomData GetStarter(Vector3Int Position)
     {
         RoomData Starter = new RoomData();
@@ -43,98 +116,4 @@ public class MapGenerator
         BasicRoom.Configure(Position, RoomData.RoomType.Basic);
         return BasicRoom;
     }
-
-
-    public IEnumerable<LayerData> Generate(Vector3Int Scale, int rn)
-    {
-        int StarterX = Random.Range(0, Scale.x);
-        int StarterZ = Random.Range(0, Scale.z);
-
-        Vector3Int StarterPositon3D = new Vector3Int(StarterX, 0, StarterZ);
-
-        RoomData StarterData = this.GetStarter(StarterPositon3D);
-        SetBasicData(Scale.x, Scale.z, rn);
-        LayerData CurrentGenerationData = GenerateNew(StarterPositon3D, StarterData);
-
-        yield return CurrentGenerationData;
-
-        /*
-
-        for (int l = 0; l < ln; l++)
-        {
-            CurrentGenerationData = GenerateFromLastGen(CurrentGenerationData);
-
-            yield return CurrentGenerationData;
-        }
-        
-        */
-    }
-
-    private LayerData GenerateFromLastGen(LayerData GD)
-    {
-        GD.EndPosition.y++;
-        LayerData _gd = GenerateNew(GD.EndPosition, GD.LastRoom);
-
-        return _gd;
-    }
-    private LayerData GenerateNew(Vector3Int StartPosition, RoomData Starter)
-    {
-        Vector3Int LastRoomPos = StartPosition;
-
-        RoomData[,] Layer = new RoomData[this.LastGenerationData.Scale.x + 10, this.LastGenerationData.Scale.z + 10];
-
-        Layer[LastRoomPos.x, LastRoomPos.z] = Starter;
-
-        for (int _room = 0; _room < this.LastGenerationData.RoomNumber; _room++)
-        {
-            List<RelativePosition> _moves = new List<RelativePosition>();
-            
-            if (LastRoomPos.x < this.LastGenerationData.Scale.x - 1 && LastRoomPos.x > 0)
-            {
-                if (Layer[LastRoomPos.x + 1, LastRoomPos.z].IsActive == false)
-                {
-                    _moves.Add(RelativePosition.East);
-                }
-                if (Layer[LastRoomPos.x - 1, LastRoomPos.z].IsActive == false)
-                {
-                    _moves.Add(RelativePosition.West);
-                }
-            }
-
-            if (LastRoomPos.z < this.LastGenerationData.Scale.z - 1 && LastRoomPos.z > 0)
-            {
-                if (Layer[LastRoomPos.x, LastRoomPos.z + 1].IsActive == false)
-                {
-                    _moves.Add(RelativePosition.North);
-                }
-                if (Layer[LastRoomPos.x, LastRoomPos.z - 1].IsActive == false)
-                {
-                    _moves.Add(RelativePosition.South);
-                }
-            }
-
-            if (_moves.Count == 0)
-            {
-                //Layer[LastRoomX, LastRoomY] = GetStairCase(LastRoomX, LastRoomY, LastRoomZ);
-                break;
-            }
-            else
-            {
-                RelativePosition Direction = _moves[Random.Range(0, _moves.Count)];
-
-                if (Direction == RelativePosition.North)    LastRoomPos.z++;
-                if (Direction == RelativePosition.South)    LastRoomPos.z--;
-                if (Direction == RelativePosition.East)     LastRoomPos.x++;
-                if (Direction == RelativePosition.West)     LastRoomPos.x--;
-
-
-                Layer[LastRoomPos.x, LastRoomPos.z] = GetBasicRoom(LastRoomPos);
-            }
-        }
-
-        this.LastGenerationData = CreateGenerationData(StartPosition, LastRoomPos, this.LastGenerationData.RoomNumber, Layer);
-
-        return this.LastGenerationData;
-    }
-    
 }
