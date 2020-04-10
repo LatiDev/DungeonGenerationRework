@@ -12,13 +12,17 @@ public class LayerGenerator : MonoBehaviour
 
     [SerializeField] [Range(10, 999)] private int RoomNumber = 100;
 
-    [SerializeField] private GameObject RoomPrefab;
+    [Header("Rooms Prefabs")]
+    [SerializeField] private GameObject BasisRoomPrefab;
     [SerializeField] private GameObject StaircasePrefab;
+    [SerializeField] private GameObject StarterPrefab;
+    [SerializeField] private GameObject EndPrefab;
+
     [SerializeField] private Transform RoomParent;
 
     private MapGenerator MG = new MapGenerator();
 
-    private void Update()
+    public void CreateLayer()
     {
         Transform cl = CreateLayer(0);
 
@@ -27,7 +31,7 @@ public class LayerGenerator : MonoBehaviour
             CreateRoom(rd, cl);
         }
     }
-    public Transform CreateLayer(int n)
+    private Transform CreateLayer(int n)
     {
         GameObject lo = new GameObject();
 
@@ -36,7 +40,7 @@ public class LayerGenerator : MonoBehaviour
 
         return lo.transform;
     }
-    public void CreateRoom(GameObject g, Transform t, Vector3Int p, List<RelativePosition> rp)
+    private void CreateRoom(GameObject g, Transform t, Vector3Int p, List<RelativePosition> rp)
     {
         GameObject r = Instantiate(g);
         r.transform.position = p * 10;
@@ -46,17 +50,25 @@ public class LayerGenerator : MonoBehaviour
         m.Position = p;
 
         Room room = r.GetComponent<Room>();
-        room.SetWall(rp);       
+        room?.SetWall(rp);                       
     }
-    public void CreateRoom(RoomData rd, Transform p)
+    private void CreateRoom(RoomData rd, Transform p)
     {
         if (rd.Type == RoomData.RoomType.Platform)
         {
             CreateRoom(StaircasePrefab, p, rd.Position, rd.WallActivated);
         }
+        else if (rd.Type == RoomData.RoomType.Start)
+        {
+            CreateRoom(StarterPrefab, p, rd.Position, rd.WallActivated);
+        }
+        else if (rd.Type == RoomData.RoomType.End)
+        {
+            CreateRoom(EndPrefab, p, rd.Position, rd.WallActivated);
+        }
         else
         {
-            CreateRoom(RoomPrefab, p, rd.Position, rd.WallActivated);
+            CreateRoom(BasisRoomPrefab, p, rd.Position, rd.WallActivated);
         }
     }
 }

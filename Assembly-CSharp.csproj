@@ -63,14 +63,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Actor\Armor.cs" />
+    <Compile Include="Assets\Scripts\Actor\Damage.cs" />
+    <Compile Include="Assets\Scripts\Actor\DamageManager.cs" />
+    <Compile Include="Assets\Scripts\Actor\Health.cs" />
     <Compile Include="Assets\Scripts\Dungeon\DungeonCreator.cs" />
-    <Compile Include="Assets\Scripts\Dungeon\LayerData.cs" />
     <Compile Include="Assets\Scripts\Dungeon\LayerGenerator.cs" />
+    <Compile Include="Assets\Scripts\Dungeon\MapGenerationResult.cs" />
     <Compile Include="Assets\Scripts\Dungeon\MapGenerator.cs" />
     <Compile Include="Assets\Scripts\Dungeon\RelativePosition.cs" />
     <Compile Include="Assets\Scripts\Dungeon\RoomData.cs" />
+    <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\Room\Mapable.cs" />
     <Compile Include="Assets\Scripts\Room\Room.cs" />
+    <Compile Include="Assets\Scripts\Spawner\ActorSpawner.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Users/Benjamin Latignies/Desktop/RogeLike_NewReWork/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>

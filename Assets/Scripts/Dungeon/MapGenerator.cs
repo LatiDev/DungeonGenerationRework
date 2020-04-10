@@ -8,13 +8,21 @@ public class MapGenerator
     private RoomData[,] CurrentLayer;
     private Vector3Int LayerScale;
 
-    private Vector3Int GetRandomPosition(int x, int z) 
+    private RoomData LastRoom;
+
+
+    private Vector3Int GetRandomPosition(int maxx, int maxz) 
     {
-        int Randx = Random.Range(0, x);
-        int RandZ = Random.Range(0, z);
+        int Randx = Random.Range(0, maxx);
+        int RandZ = Random.Range(0, maxz);
 
         return new Vector3Int(Randx, 0, RandZ);
-    }    
+    }
+    public MapGenerationResult CreateGenerationResult(RoomData sr, RoomData se)
+    {
+        MapGenerationResult mgr = new MapGenerationResult(sr, se);
+        return mgr;
+    }
     public IEnumerable<RoomData> Generate(Vector3Int Scale, int RoomNumber)
     {
         RoomData[] AllRoom = GenerateMap(Scale, RoomNumber);
@@ -31,14 +39,24 @@ public class MapGenerator
         Vector3Int StarterPositon3D = GetRandomPosition(this.LayerScale.x, this.LayerScale.z);
         RoomData StarterData = SetRoomAt(StarterPositon3D, GetStarter);
         AllRoom.Add(StarterData);
-
+        
         Vector3Int LastPosition = StarterData.Position;
         for (int rn = 0; rn < RoomNumber; rn++)
         {
-            RoomData room = PlaceRoom(LastPosition);
-            LastPosition = room.Position;
+            RoomData RoomToPlace = GetNextRoomAround(LastPosition);
 
-            AllRoom.Add(room);
+            if (RoomToPlace.Type == RoomData.RoomType.End)
+            {
+                ReplaceLastRoomBy(RoomToPlace);
+                AllRoom.Remove(LastRoom);
+                AllRoom.Add(RoomToPlace);
+                break;
+            }
+
+            SetRoomAt(RoomToPlace);
+            AllRoom.Add(RoomToPlace);
+
+            LastPosition = RoomToPlace.Position;
         }
 
         return AllRoom.ToArray();
@@ -55,28 +73,39 @@ public class MapGenerator
             yield return NewRoom;            
         }
     }
-
-    private RoomData PlaceRoom(Vector3Int LastRoomPos)
+    private RoomData GetNextRoomAround(Vector3Int LastRoomPos)
     {
-        List<RelativePosition> _moves = LookAroundARoom(LastRoomPos);
+        Vector3Int Pos = LastRoomPos;
+                
+        List<RelativePosition> _moves = LookAroundARoom(Pos);
 
         if (_moves.Count == 0)
         {
-            //Layer[LastRoomX, LastRoomY] = GetStairCase(LastRoomX, LastRoomY, LastRoomZ);            
-            return SetRoomAt(LastRoomPos, GetBasicRoom);
+            //return SetRoomAt(LastRoomPos, GetStairCase); <- TODO: Change this
+            return GetEndRoom(Pos);
         }
         else
         {
             RelativePosition Direction = _moves[Random.Range(0, _moves.Count)];
 
-            if (Direction == RelativePosition.North) LastRoomPos.z++;
-            if (Direction == RelativePosition.South) LastRoomPos.z--;
-            if (Direction == RelativePosition.East) LastRoomPos.x++;
-            if (Direction == RelativePosition.West) LastRoomPos.x--;
+            if (Direction == RelativePosition.North) Pos.z++;
+            if (Direction == RelativePosition.South) Pos.z--;
+            if (Direction == RelativePosition.East) Pos.x++;
+            if (Direction == RelativePosition.West) Pos.x--;
 
-            return SetRoomAt(LastRoomPos, GetBasicRoom);
+            return GetBasicRoom(Pos);
         }
     }
+    public void ReplaceLastRoomBy(RoomData rd)
+    {
+        this.CurrentLayer[LastRoom.Position.x, LastRoom.Position.z] = rd;
+    }
+    public bool IsRoomOverlap(Vector3Int RoomPosition)
+    {
+        //Debug.Log($"{RoomPosition} == {LastRoomPosition}");
+        return RoomPosition == LastRoom.Position;
+    }
+
     private List<RelativePosition> LookAroundARoom(Vector3Int RoomPosition, bool Advanced = false)
     {
         List<RelativePosition> _moves = new List<RelativePosition>();
@@ -168,16 +197,28 @@ public class MapGenerator
                 return false;
         }
     }
-
-
     private RoomData SetRoomAt(Vector3Int Pos, System.Func<Vector3Int, RoomData> F)
     {
         RoomData r = F(Pos);
         this.CurrentLayer[Pos.x, Pos.z] = r;
 
+        //Debug.Log($"LastPosition set to: {r.Position}");
+
+        this.LastRoom = r;
         return r;
     }
+    private void SetRoomAt(RoomData rd)
+    {
+        this.CurrentLayer[rd.Position.x, rd.Position.z] = rd;
+        this.LastRoom = rd;
+    }
+    public RoomData GetEndRoom(Vector3Int Position)
+    {
+        RoomData End = new RoomData();
+        End.Configure(Position, RoomData.RoomType.End);
 
+        return End;
+    }
     public RoomData GetStarter(Vector3Int Position)
     {
         RoomData Starter = new RoomData();
