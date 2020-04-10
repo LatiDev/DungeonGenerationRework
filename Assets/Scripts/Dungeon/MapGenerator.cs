@@ -18,11 +18,6 @@ public class MapGenerator
 
         return new Vector3Int(Randx, 0, RandZ);
     }
-    public MapGenerationResult CreateGenerationResult(RoomData sr, RoomData se)
-    {
-        MapGenerationResult mgr = new MapGenerationResult(sr, se);
-        return mgr;
-    }
     public IEnumerable<RoomData> Generate(Vector3Int Scale, int RoomNumber)
     {
         RoomData[] AllRoom = GenerateMap(Scale, RoomNumber);

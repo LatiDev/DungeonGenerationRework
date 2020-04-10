@@ -1,5 +1,35 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3272843132126560494
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4601314836530125451}
+  m_Layer: 0
+  m_Name: PlayerSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4601314836530125451
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3272843132126560494}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 3705781669854971479}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3705781668156464185
 GameObject:
   m_ObjectHideFlags: 0
@@ -1065,6 +1095,7 @@ GameObject:
   - component: {fileID: 3705781669854971479}
   - component: {fileID: 5587746224018663785}
   - component: {fileID: 3289552588561995484}
+  - component: {fileID: 4633003864490701933}
   m_Layer: 0
   m_Name: StarterRoom
   m_TagString: Untagged
@@ -1081,10 +1112,11 @@ Transform:
   m_GameObject: {fileID: 3705781669854971560}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children:
   - {fileID: 3705781668452796166}
   - {fileID: 2767633745761664486}
+  - {fileID: 4601314836530125451}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1123,6 +1155,19 @@ MonoBehaviour:
   FowardLeftCorner: {fileID: 3705781668243929539}
   BackwardRigthCorner: {fileID: 3705781669037125349}
   BackwardLeftCorner: {fileID: 3705781668413749365}
+--- !u!114 &4633003864490701933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3705781669854971560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a6b7142ae4d425449d23eb8e22d6174, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _PlayerSpawnPoint: {fileID: 4601314836530125451}
 --- !u!1 &3705781669957909360
 GameObject:
   m_ObjectHideFlags: 0

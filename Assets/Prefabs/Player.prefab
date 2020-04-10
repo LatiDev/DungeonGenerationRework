@@ -1,5 +1,31 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1639073986583639404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6659306954617073078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 171d5d69630e2cf45a6bc3fbb0daacd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Rigidbody: {fileID: 350178944775891456}
+  Speed: 0.5
+--- !u!114 &3012712903127091762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6659306954617073078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f625b30e6bce8547b73cf88274e2655, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &8413629908147738843
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -77,5 +103,22 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: b3fccbd6a6e52de4cb5f8f1ab55a85e5, type: 2}
+    - target: {fileID: 8079213879928795867, guid: 4b55a0ef065ec934ea1277a1d8ddec42,
+        type: 3}
+      propertyPath: m_CollisionDetection
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4b55a0ef065ec934ea1277a1d8ddec42, type: 3}
+--- !u!1 &6659306954617073078 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2930061832674784621, guid: 4b55a0ef065ec934ea1277a1d8ddec42,
+    type: 3}
+  m_PrefabInstance: {fileID: 8413629908147738843}
+  m_PrefabAsset: {fileID: 0}
+--- !u!54 &350178944775891456 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 8079213879928795867, guid: 4b55a0ef065ec934ea1277a1d8ddec42,
+    type: 3}
+  m_PrefabInstance: {fileID: 8413629908147738843}
+  m_PrefabAsset: {fileID: 0}
