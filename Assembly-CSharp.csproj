@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\Player\PlayerController.cs" />
     <Compile Include="Assets\Scripts\Player\PlayerLookCursor.cs" />
     <Compile Include="Assets\Scripts\Room\Mapable.cs" />
+    <Compile Include="Assets\Scripts\Room\NearRoomPatern.cs" />
     <Compile Include="Assets\Scripts\Room\Room.cs" />
     <Compile Include="Assets\Scripts\Room\StarterRoom.cs" />
     <Compile Include="Assets\Scripts\Spawner\ActorSpawner.cs" />

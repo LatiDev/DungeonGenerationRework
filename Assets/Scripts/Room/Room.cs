@@ -24,7 +24,7 @@ public class Room : MonoBehaviour
     {
         //if (WallParent.activeSelf) { WallParent.SetActive(false); }
     }
-    public void SetWall(List<RelativePosition> poss)
+    public void SetWall(IEnumerable<RelativePosition> poss)
     {
         foreach (RelativePosition pos in poss) { WallSetup(pos); }
     }
