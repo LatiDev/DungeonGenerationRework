@@ -57,10 +57,20 @@ public class MapGenerator
                 break;
             }
 
-            SetRoomAt(RoomToPlace);
-            AllRoom.Add(RoomToPlace);
+            if (rn == RoomNumber - 1)
+            {
+                RoomToPlace = GetEndRoom(LastPosition);
 
-            LastPosition = RoomToPlace.Position;
+                SetRoomAt(RoomToPlace);
+                AllRoom.Add(RoomToPlace);
+            }
+            else
+            {
+                SetRoomAt(RoomToPlace);
+                AllRoom.Add(RoomToPlace);
+
+                LastPosition = RoomToPlace.Position;
+            }
         }
 
         return AllRoom.ToArray();

@@ -14,8 +14,9 @@ public class LayerGenerator : MonoBehaviour
 
     [Header("Rooms Prefabs")]
     [SerializeField] private GameObject BasisRoomPrefab;
-    [SerializeField] private GameObject StaircasePrefab;
     [SerializeField] private GameObject StarterPrefab;
+    [SerializeField] private GameObject StaircasePrefab;
+    [SerializeField] private GameObject HallwayPrefab;
     [SerializeField] private GameObject EndPrefab;
 
     [SerializeField] private Transform RoomParent;
