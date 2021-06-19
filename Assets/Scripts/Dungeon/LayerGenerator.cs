@@ -29,7 +29,8 @@ public class LayerGenerator : MonoBehaviour
     {
         Transform cl = CreateLayer(0);
         
-        foreach (RoomData rd in MG.Generate(new Vector3Int(ScaleX, ScaleY, ScaleZ), RoomNumber)) CreateRoom(rd, cl);
+        foreach (RoomData rd in MG.Generate(new Vector3Int(ScaleX, ScaleY, ScaleZ), RoomNumber)) 
+            CreateRoom(rd, cl);
 
         return LGR;
     }

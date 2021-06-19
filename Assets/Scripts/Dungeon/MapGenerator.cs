@@ -24,7 +24,7 @@ public class MapGenerator
 
         foreach (RoomData rd in AllRoom)
         {
-            List<RelativePosition> AroundSimple = this.LookAroundARoom(rd.Position);
+            //List<RelativePosition> AroundSimple = this.LookAroundARoom(rd.Position);
             List<RelativePosition> AroundAdvanced = this.LookAroundARoom(rd.Position, true);
 
             rd.SetupWalls(AroundAdvanced);
@@ -112,7 +112,8 @@ public class MapGenerator
         List<RelativePosition> _moves = new List<RelativePosition>();
 
         _moves.AddRange(LookAroundSimpleOnly(RoomPosition));
-        if (Advanced) _moves.AddRange(LookAroundAdvancedOnly(RoomPosition));
+        if (Advanced) 
+            _moves.AddRange(LookAroundAdvancedOnly(RoomPosition));
 
         return _moves;
     }
@@ -131,7 +132,7 @@ public class MapGenerator
                 _moves.Add(RelativePosition.West);
             }
         }
-
+        
         if (RoomPosition.z < this.LayerScale.z - 1 && RoomPosition.z > 0)
         {
             if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.North))
@@ -150,7 +151,8 @@ public class MapGenerator
     {
         List<RelativePosition> _moves = new List<RelativePosition>();
 
-        if (RoomPosition.x < this.LayerScale.x - 1 && RoomPosition.x > 0)
+        if ((RoomPosition.x < this.LayerScale.x - 1 && RoomPosition.x > 0) &&
+            (RoomPosition.z < this.LayerScale.z - 1 && RoomPosition.z > 0))
         {
             if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.North_East, RelativePosition.North, RelativePosition.East))
             {
@@ -160,16 +162,13 @@ public class MapGenerator
             {
                 _moves.Add(RelativePosition.North_West);
             }
-        }
-        if (RoomPosition.z < this.LayerScale.z - 1 && RoomPosition.z > 0)
-        {
             if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.South_East, RelativePosition.South, RelativePosition.East))
             {
                 _moves.Add(RelativePosition.South_East);
             }
             if (IsNoRoomAt(RoomPosition.x, RoomPosition.z, RelativePosition.South_West, RelativePosition.West, RelativePosition.South))
             {
-                _moves.Add(RelativePosition.South_West);    
+                _moves.Add(RelativePosition.South_West);
             }
         }
 
@@ -187,22 +186,22 @@ public class MapGenerator
         switch (p)
         {
             case RelativePosition.North:
-                return this.CurrentLayer[RoomX, RoomZ + 1].IsActive == false;
+                return !this.CurrentLayer[RoomX, RoomZ + 1].IsActive;
             case RelativePosition.South:
-                return this.CurrentLayer[RoomX, RoomZ - 1].IsActive == false;
+                return !this.CurrentLayer[RoomX, RoomZ - 1].IsActive;
             case RelativePosition.East:
-                return this.CurrentLayer[RoomX + 1, RoomZ].IsActive == false;
+                return !this.CurrentLayer[RoomX + 1, RoomZ].IsActive;
             case RelativePosition.West:
-                return this.CurrentLayer[RoomX - 1, RoomZ].IsActive == false;
+                return !this.CurrentLayer[RoomX - 1, RoomZ].IsActive;
 
             case RelativePosition.North_East:
-                return this.CurrentLayer[RoomX + 1, RoomZ + 1].IsActive == false;
+                return !this.CurrentLayer[RoomX + 1, RoomZ + 1].IsActive;
             case RelativePosition.North_West:
-                return this.CurrentLayer[RoomX - 1, RoomZ + 1].IsActive == false;
+                return !this.CurrentLayer[RoomX - 1, RoomZ + 1].IsActive;
             case RelativePosition.South_East:
-                return this.CurrentLayer[RoomX + 1, RoomZ - 1].IsActive == false;
+                return !this.CurrentLayer[RoomX + 1, RoomZ - 1].IsActive;
             case RelativePosition.South_West:
-                return this.CurrentLayer[RoomX - 1, RoomZ - 1].IsActive == false;
+                return !this.CurrentLayer[RoomX - 1, RoomZ - 1].IsActive;
 
 
             default:

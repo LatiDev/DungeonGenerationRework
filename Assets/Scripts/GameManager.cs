@@ -11,9 +11,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform CameraAnchor;
     [SerializeField] private CameraFollow CameraFollower;
 
-    private void Start()
+    private void Update()
     {
-        foreach (Transform t in RoomParent) Destroy(t.gameObject);
+        foreach (Transform t in RoomParent) 
+            Destroy(t.gameObject);
 
         LayerGenerationResult LGR = LayerGenerator.GenerateLayer();
         StarterRoom SR = LGR.StarterRoomInstance.GetComponent<StarterRoom>();
