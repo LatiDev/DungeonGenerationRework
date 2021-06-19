@@ -11,12 +11,11 @@ public struct RoomData
         Platform,
         End
     }
-            
+
     public Vector3Int Position;
     public RoomType Type;
 
-
-    public IEnumerable<RelativePosition> WallActivated;
+    public int WallActivated;
     public bool IsActive;
 
     public void Configure(Vector3Int p, RoomType t)
@@ -26,7 +25,7 @@ public struct RoomData
 
         this.IsActive = true;
     }
-    public void SetupWalls(IEnumerable<RelativePosition> rls)
+    public void SetupWalls(int rls)
     {
         this.WallActivated = rls;
     }

@@ -20,43 +20,25 @@ public class Room : MonoBehaviour
     [SerializeField] private GameObject BackwardRigthCorner;
     [SerializeField] private GameObject BackwardLeftCorner;
 
-    private void Start()
-    {
-        //if (WallParent.activeSelf) { WallParent.SetActive(false); }
-    }
-    public void SetWall(IEnumerable<RelativePosition> poss)
-    {
-        foreach (RelativePosition pos in poss) { WallSetup(pos); }
-    }
-    private void WallSetup(RelativePosition rp)
-    {
-        switch (rp)
-        {
-            case RelativePosition.North:
-                this.FowardWall.SetActive(true);
-                break;
-            case RelativePosition.South:
-                this.BackwardWall.SetActive(true);
-                break;
-            case RelativePosition.East:
-                this.RigthWall.SetActive(true);
-                break;
-            case RelativePosition.West:
-                this.LeftWall.SetActive(true);
-                break;
 
-            case RelativePosition.North_East:
-                this.FowardRigthCorner.SetActive(true);
-                break;
-            case RelativePosition.North_West:
-                this.FowardLeftCorner.SetActive(true);
-                break;
-            case RelativePosition.South_East:
-                this.BackwardRigthCorner.SetActive(true);
-                break;
-            case RelativePosition.South_West:
-                this.BackwardLeftCorner.SetActive(true);
-                break;
-        }
+    public void SetWall(int poss)
+    {
+        if ((poss & (int)RelativePosition.North) == (int)RelativePosition.North)
+            this.FowardWall.SetActive(true);
+        if ((poss & (int)RelativePosition.South) == (int)RelativePosition.South)
+            this.BackwardWall.SetActive(true);
+        if ((poss & (int)RelativePosition.East) == (int)RelativePosition.East)
+            this.RigthWall.SetActive(true);
+        if ((poss & (int)RelativePosition.West) == (int)RelativePosition.West)
+            this.LeftWall.SetActive(true);
+        
+        if ((poss & (int)RelativePosition.North_East) == (int)RelativePosition.North_East)
+            this.FowardRigthCorner.SetActive(true);
+        if ((poss & (int)RelativePosition.North_West) == (int)RelativePosition.North_West)
+            this.FowardLeftCorner.SetActive(true);
+        if ((poss & (int)RelativePosition.South_East) == (int)RelativePosition.South_East)
+            this.BackwardRigthCorner.SetActive(true);
+        if ((poss & (int)RelativePosition.South_West) == (int)RelativePosition.South_West)
+            this.BackwardLeftCorner.SetActive(true);
     }
 }

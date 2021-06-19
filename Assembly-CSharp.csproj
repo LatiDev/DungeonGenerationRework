@@ -76,6 +76,7 @@
     <Compile Include="Assets\Scripts\Dungeon\DungeonCreator.cs" />
     <Compile Include="Assets\Scripts\Actor\Damage.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraFollow.cs" />
+    <Compile Include="Assets\Scripts\Dungeon\CustomRandom.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

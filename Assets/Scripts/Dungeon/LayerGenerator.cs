@@ -29,8 +29,10 @@ public class LayerGenerator : MonoBehaviour
     {
         Transform cl = CreateLayer(0);
         
-        foreach (RoomData rd in MG.Generate(new Vector3Int(ScaleX, ScaleY, ScaleZ), RoomNumber)) 
+        foreach (RoomData rd in MG.Generate(new Vector3Int(ScaleX, ScaleY, ScaleZ), RoomNumber))
+        {
             CreateRoom(rd, cl);
+        }
 
         return LGR;
     }
@@ -43,7 +45,7 @@ public class LayerGenerator : MonoBehaviour
 
         return lo.transform;
     }
-    private GameObject InstantiateRoom(GameObject g, Transform t, Vector3Int p, IEnumerable<RelativePosition> rp)
+    private GameObject InstantiateRoom(GameObject g, Transform t, Vector3Int p, int rp)
     {
         GameObject r = Instantiate(g);
         r.transform.position = p * 20;
