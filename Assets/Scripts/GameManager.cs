@@ -12,13 +12,30 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CameraFollow CameraFollower;
 
     private void Update()
-    {        
+    {
+        /*
+        int a = 1;
+        a <<= 8;
+        Debug.Log(a);
+        a <<= 8;
+        Debug.Log(a);
+        a <<= 8;
+        Debug.Log(a);
+        a <<= 8;
+        Debug.Log(a);
+        */
+
+        LayerGenerator.GenerateLayer(new Vector2Int(6, 6));
+
+        /*
         foreach (Transform t in RoomParent) 
             Destroy(t.gameObject);
 
         LayerGenerationResult LGR = LayerGenerator.GenerateLayer();
         StarterRoom SR = LGR.StarterRoomInstance.GetComponent<StarterRoom>();
         
+        */
+
         /*
         CameraAnchor.position = SR.PlayerSpawnPoint.position;
         GameObject PlayerInstance = PlayerSpawner.Spawn(SR.PlayerSpawnPoint.position);

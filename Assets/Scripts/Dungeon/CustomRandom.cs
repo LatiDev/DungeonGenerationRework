@@ -4,19 +4,16 @@ using UnityEngine;
 
 public class CustomRandom
 {
-    private static long x = 123456789, y = 362436069, z = 521288629;
+    private static byte x = 1, y = 1, z = 1, a = 1;
 
-    public static long xorshf96()
+    public static byte xorshf8()
     {
-        long t;
-        x ^= x << 16;
-        x ^= x >> 5;
-        x ^= x << 1;
-
-        t = x;
+        byte t = (byte)(x ^ (x << 4));
         x = y;
         y = z;
-        z = t ^ x ^ y;
+        z = a;
+
+        a = (byte)(z ^ t ^ (z >> 1) ^ (t << 1));
 
         return z;
     }

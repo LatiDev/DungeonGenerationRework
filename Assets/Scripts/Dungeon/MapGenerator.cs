@@ -10,7 +10,6 @@ public class MapGenerator
 
     private RoomData LastRoom;
 
-
     private Vector3Int GetRandomPosition(int maxx, int maxz) 
     {
         int Randx = Random.Range(0, maxx);
@@ -28,6 +27,60 @@ public class MapGenerator
             yield return rd;
         }
     }
+    public RoomData[,] GenerateMap(Vector2Int Size)
+    {
+        Vector2Int StartPosition = new Vector2Int(Random.Range(0, Size.x), Random.Range(0, Size.y));
+        
+        uint PossibleMovement = 0;
+        PossibleMovement <<= 8;
+        PossibleMovement += (byte)(StartPosition.x);
+        PossibleMovement <<= 8;
+        PossibleMovement += (byte)((Size.x - 1) - StartPosition.x);
+        PossibleMovement <<= 8;
+        PossibleMovement += (byte)(StartPosition.y);
+        PossibleMovement <<= 8;
+        PossibleMovement += (byte)((Size.y - 1) - StartPosition.y);
+
+        RoomData[,] Map = new RoomData[Size.x, Size.y];
+        Map[StartPosition.x, StartPosition.y] = new RoomData();
+
+        int PerimetreAire = (Size.x * 2) + ((Size.y - 2) * 2);
+        int DataDirection = 0;
+        int Mask = 0;
+        for (int c = 0; c < 1; c++)
+        {            
+            DataDirection =
+                (((PossibleMovement & byte.MaxValue) > 0) ? 1 : 0) +
+                ((((PossibleMovement & (byte.MaxValue << 8)) >> 8) > 0) ? 1 : 0) +
+                ((((PossibleMovement & (byte.MaxValue << 16)) >> 16) > 0) ? 1 : 0) +
+                ((((PossibleMovement & (byte.MaxValue << 24)) >> 24) > 0) ? 1 : 0);
+
+            DataDirection = Random.Range(0, DataDirection);
+
+            DataDirection = (DataDirection == 0) ? 0 : 8 * DataDirection;
+            Mask = 1 << DataDirection;
+            DataDirection = (int)((PossibleMovement & byte.MaxValue << DataDirection) >> DataDirection);
+
+            DataDirection -= Mask;
+
+            Debug.Log($"DataDirection : " +
+                $"{(DataDirection & byte.MaxValue)}," +
+                $"{(DataDirection & (byte.MaxValue << 8)) >> 8}," +
+                $"{(DataDirection & (byte.MaxValue << 16)) >> 16}," +
+                $"{(DataDirection & (byte.MaxValue << 24)) >> 24}");
+            
+            Debug.Log($"PossibleMovement : " +
+                $"{(PossibleMovement & byte.MaxValue)}," +
+                $"{(PossibleMovement & (byte.MaxValue << 8)) >> 8}," +
+                $"{(PossibleMovement & (byte.MaxValue << 16)) >> 16}," +
+                $"{(PossibleMovement & (byte.MaxValue << 24)) >> 24}");
+        }
+        
+
+        return Map;
+    }
+
+
     public RoomData[] GenerateMap(Vector3Int Scale, int RoomNumber)
     {
         this.CurrentLayer = new RoomData[Scale.x, Scale.z];
@@ -35,38 +88,27 @@ public class MapGenerator
 
         List<RoomData> AllRoom = new List<RoomData>(RoomNumber); 
 
-        Vector3Int StarterPositon3D = GetRandomPosition(this.LayerScale.x, this.LayerScale.z);
-        RoomData StarterData = SetRoomAt(StarterPositon3D, GetStarter);
-        AllRoom.Add(StarterData);
+        RoomData RoomToPlace = SetRoomAt(GetRandomPosition(this.LayerScale.x, this.LayerScale.z), GetStarter);
+        AllRoom.Add(RoomToPlace);
         
-        Vector3Int LastPosition = StarterData.Position;
+        Vector3Int LastPosition = RoomToPlace.Position;
         for (int rn = 0; rn < RoomNumber; rn++)
         {
-            RoomData RoomToPlace = GetNextRoomAround(LastPosition);
+            RoomToPlace = GetNextRoomAround(LastPosition);
 
-            if (RoomToPlace.Type == RoomData.RoomType.End)
-            {
-                ReplaceLastRoomBy(RoomToPlace);
-                AllRoom.Remove(LastRoom);
-                AllRoom.Add(RoomToPlace);
-                break;
-            }
+            if (RoomToPlace.Type == RoomData.RoomType.End) break;
 
-            if (rn == RoomNumber - 1)
-            {
-                RoomToPlace = GetEndRoom(LastPosition);
+            SetRoomAt(RoomToPlace);
+            AllRoom.Add(RoomToPlace);
 
-                SetRoomAt(RoomToPlace);
-                AllRoom.Add(RoomToPlace);
-            }
-            else
-            {
-                SetRoomAt(RoomToPlace);
-                AllRoom.Add(RoomToPlace);
-
-                LastPosition = RoomToPlace.Position;
-            }
+            LastPosition = RoomToPlace.Position;
         }
+
+        AllRoom.Remove(LastRoom);
+
+        RoomToPlace = GetEndRoom(LastPosition);
+        AllRoom.Add(RoomToPlace);
+        SetRoomAt(RoomToPlace);
 
         return AllRoom.ToArray();
     }
@@ -82,18 +124,18 @@ public class MapGenerator
         }
         else
         {
-            long RandomNumber = CustomRandom.xorshf96();
+            long RandomNumber = CustomRandom.xorshf8();
             int FormatedNumber = 
                 ((RandomNumber % 2 == 0) ? (int)RelativePosition.North : 0) + 
                 ((RandomNumber % 3 == 0) ? (int)RelativePosition.South : 0) +
                 ((RandomNumber % 5 == 0) ? (int)RelativePosition.East  : 0) +
                 ((RandomNumber % 7 == 0) ? (int)RelativePosition.West  : 0);
-            
+
             RelativePosition Direction = (RelativePosition)(_moves & FormatedNumber);
 
             if (Direction == RelativePosition.North) Pos.z++;
             if (Direction == RelativePosition.South) Pos.z--;
-            if (Direction == RelativePosition.East) Pos.x++;
+            if (Direction == RelativePosition.East)  Pos.x++;
             if (Direction == RelativePosition.West) Pos.x--;
 
             return GetBasicRoom(Pos);
