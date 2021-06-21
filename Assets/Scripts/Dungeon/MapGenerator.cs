@@ -61,21 +61,9 @@ public class MapGenerator
         int DataDirection = 0;
         for (int c = 0; c < PerimetreAire; c++)
         {
-            if (PossibleMovement == 0) 
-            {
-                Debug.Log("Force Exit");
-                break;
-            }            
-            
-            /*
-            Debug.Log("Next Loop --------------");
-            Debug.Log($"StartPosition: {StartPosition}");
-            Debug.Log($"PossibleMovement : " +
-                $"{(PossibleMovement & 0xFF00_0000) >> 24}," +
-                $"{(PossibleMovement & 0x00FF_0000) >> 16}," +
-                $"{(PossibleMovement & 0x0000_FF00) >> 8}," +
-                $"{(PossibleMovement & 0x0000_00FF)}");
-            */
+            Debug.Log("Next Loop -----------------");
+
+            if (PossibleMovement == 0) break;
 
             if ((PossibleMovement & 0x0000_00FF) == 0)
             {
@@ -94,11 +82,11 @@ public class MapGenerator
                 PossibleMovement += (uint)(DataDirection >> 8);
             }
 
-            DataDirection =
-                (PossibleMovement & 0x0000_00FF)        > 0 ? 1 : 0 +
-                (PossibleMovement & 0x0000_FF00) >> 8   > 0 ? 1 : 0 +
-                (PossibleMovement & 0x00FF_0000) >> 16  > 0 ? 1 : 0 +
-                (PossibleMovement & 0xFF00_0000) >> 24  > 0 ? 1 : 0;
+            DataDirection = 
+                ((PossibleMovement & 0x0000_00FF) > 0 ? 1 : 0) + 
+                ((PossibleMovement & 0x0000_FF00) >> 8   > 0 ? 1 : 0) + 
+                ((PossibleMovement & 0x00FF_0000) >> 16  > 0 ? 1 : 0) + 
+                ((PossibleMovement & 0xFF00_0000) >> 24  > 0 ? 1 : 0);
 
             DataDirection = Random.Range(0, DataDirection);
             DataDirection = (DataDirection == 0) ? 0 : 8 * DataDirection;
@@ -106,13 +94,24 @@ public class MapGenerator
             //DataDirection = (int)((PossibleMovement & byte.MaxValue << DataDirection) >> DataDirection);
 
             PossibleMovement -= (uint)(1 << DataDirection);
+
+            /*
+            Debug.Log($"PossibleMovement: " +
+            $"{(PossibleMovement & 0xFF00_0000) >> 24}," +
+            $"{(PossibleMovement & 0x00FF_0000) >> 16}," +
+            $"{(PossibleMovement & 0x0000_FF00) >> 8}," +
+            $"{(PossibleMovement & 0x0000_00FF)}");
+            */
+
         }
 
+        /*
         Debug.Log($"Exit with: " +
             $"{(PossibleMovement & 0xFF00_0000) >> 24}," +
             $"{(PossibleMovement & 0x00FF_0000) >> 16}," +
             $"{(PossibleMovement & 0x0000_FF00) >> 8}," +
             $"{(PossibleMovement & 0x0000_00FF)} == 0 ? {PossibleMovement == 0}");
+        */
         
         return Map;
     }
