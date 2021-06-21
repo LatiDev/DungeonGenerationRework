@@ -30,53 +30,90 @@ public class MapGenerator
     public RoomData[,] GenerateMap(Vector2Int Size)
     {
         Vector2Int StartPosition = new Vector2Int(Random.Range(0, Size.x), Random.Range(0, Size.y));
-        
-        uint PossibleMovement = 0;
-        PossibleMovement <<= 8;
-        PossibleMovement += (byte)(StartPosition.x);
-        PossibleMovement <<= 8;
-        PossibleMovement += (byte)((Size.x - 1) - StartPosition.x);
-        PossibleMovement <<= 8;
-        PossibleMovement += (byte)(StartPosition.y);
-        PossibleMovement <<= 8;
-        PossibleMovement += (byte)((Size.y - 1) - StartPosition.y);
 
         RoomData[,] Map = new RoomData[Size.x, Size.y];
         Map[StartPosition.x, StartPosition.y] = new RoomData();
 
-        int PerimetreAire = (Size.x * 2) + ((Size.y - 2) * 2);
+        uint PossibleMovement = 0;
+        if (StartPosition.x > 0)
+        {
+            PossibleMovement += (byte)(StartPosition.x);
+        }
+        if ((Size.x - 1) - StartPosition.x > 0)
+        {
+            PossibleMovement <<= 8;
+            PossibleMovement += (byte)((Size.x - 1) - StartPosition.x);
+        }
+        if (StartPosition.y > 0)
+        {
+            PossibleMovement <<= 8;
+            PossibleMovement += (byte)(StartPosition.y);
+        }
+        if ((Size.y - 1) - StartPosition.y > 0)
+        {
+            PossibleMovement <<= 8;
+            PossibleMovement += (byte)((Size.y - 1) - StartPosition.y);
+        }
+
+        //PossibleMovement = 0x0000_1100;
+
+        int PerimetreAire = (Size.x * 2) + ((Size.y - 2) * 2); // a revoir
         int DataDirection = 0;
-        int Mask = 0;
-        for (int c = 0; c < 1; c++)
-        {            
+        for (int c = 0; c < PerimetreAire; c++)
+        {
+            if (PossibleMovement == 0) 
+            {
+                Debug.Log("Force Exit");
+                break;
+            }            
+            
+            /*
+            Debug.Log("Next Loop --------------");
+            Debug.Log($"StartPosition: {StartPosition}");
+            Debug.Log($"PossibleMovement : " +
+                $"{(PossibleMovement & 0xFF00_0000) >> 24}," +
+                $"{(PossibleMovement & 0x00FF_0000) >> 16}," +
+                $"{(PossibleMovement & 0x0000_FF00) >> 8}," +
+                $"{(PossibleMovement & 0x0000_00FF)}");
+            */
+
+            if ((PossibleMovement & 0x0000_00FF) == 0)
+            {
+                PossibleMovement >>= 8;
+            }
+            if ((PossibleMovement & 0x0000_FF00) == 0)
+            {
+                DataDirection = (int)(PossibleMovement & 0xFFFF_0000);
+                PossibleMovement &= 0x0000_FFFF;
+                PossibleMovement += (uint)(DataDirection >> 8);
+            }
+            if ((PossibleMovement & 0x00FF_0000) == 0)
+            {
+                DataDirection = (int)(PossibleMovement & 0xFF00_0000);
+                PossibleMovement &= 0xFF00_FFFF;
+                PossibleMovement += (uint)(DataDirection >> 8);
+            }
+
             DataDirection =
-                (((PossibleMovement & byte.MaxValue) > 0) ? 1 : 0) +
-                ((((PossibleMovement & (byte.MaxValue << 8)) >> 8) > 0) ? 1 : 0) +
-                ((((PossibleMovement & (byte.MaxValue << 16)) >> 16) > 0) ? 1 : 0) +
-                ((((PossibleMovement & (byte.MaxValue << 24)) >> 24) > 0) ? 1 : 0);
+                (PossibleMovement & 0x0000_00FF)        > 0 ? 1 : 0 +
+                (PossibleMovement & 0x0000_FF00) >> 8   > 0 ? 1 : 0 +
+                (PossibleMovement & 0x00FF_0000) >> 16  > 0 ? 1 : 0 +
+                (PossibleMovement & 0xFF00_0000) >> 24  > 0 ? 1 : 0;
 
             DataDirection = Random.Range(0, DataDirection);
-
             DataDirection = (DataDirection == 0) ? 0 : 8 * DataDirection;
-            Mask = 1 << DataDirection;
-            DataDirection = (int)((PossibleMovement & byte.MaxValue << DataDirection) >> DataDirection);
+            //Mask = (uint)(1 << DataDirection);
+            //DataDirection = (int)((PossibleMovement & byte.MaxValue << DataDirection) >> DataDirection);
 
-            DataDirection -= Mask;
-
-            Debug.Log($"DataDirection : " +
-                $"{(DataDirection & byte.MaxValue)}," +
-                $"{(DataDirection & (byte.MaxValue << 8)) >> 8}," +
-                $"{(DataDirection & (byte.MaxValue << 16)) >> 16}," +
-                $"{(DataDirection & (byte.MaxValue << 24)) >> 24}");
-            
-            Debug.Log($"PossibleMovement : " +
-                $"{(PossibleMovement & byte.MaxValue)}," +
-                $"{(PossibleMovement & (byte.MaxValue << 8)) >> 8}," +
-                $"{(PossibleMovement & (byte.MaxValue << 16)) >> 16}," +
-                $"{(PossibleMovement & (byte.MaxValue << 24)) >> 24}");
+            PossibleMovement -= (uint)(1 << DataDirection);
         }
-        
 
+        Debug.Log($"Exit with: " +
+            $"{(PossibleMovement & 0xFF00_0000) >> 24}," +
+            $"{(PossibleMovement & 0x00FF_0000) >> 16}," +
+            $"{(PossibleMovement & 0x0000_FF00) >> 8}," +
+            $"{(PossibleMovement & 0x0000_00FF)} == 0 ? {PossibleMovement == 0}");
+        
         return Map;
     }
 
