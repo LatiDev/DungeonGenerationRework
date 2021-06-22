@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
         Debug.Log(a);
         */
 
-        LayerGenerator.GenerateLayer(new Vector2Int(6, 6));
+        LayerGenerator.GenerateLayer(6, 6);
 
         /*
         foreach (Transform t in RoomParent) 

@@ -24,9 +24,9 @@ public class LayerGenerator : MonoBehaviour
     private MapGenerator MG = new MapGenerator();
     private LayerGenerationResult LGR = new LayerGenerationResult();
 
-    public void GenerateLayer(Vector2Int Size)
-    {
-        MG.GenerateMap(Size);
+    public void GenerateLayer(byte x, byte y)
+    {        
+        MG.GenerateMap((short)(x + (y << 8)));
         //MG.GenerateMap(new Vector3Int(Size.x, Size.y, Size.y), 100);
     }
 

@@ -10,6 +10,20 @@ public class MapGenerator
 
     private RoomData LastRoom;
 
+    enum SizeMask : ushort
+    {
+        x = 0x00FF,
+        y = 0xFF00,
+    }
+    // StartPosition.x | (Size.x - 1) - StartPosition.x | StartPosition.y > 0 | (Size.y - 1) - StartPosition.y
+    enum MovementMask : uint
+    {
+        delta_y = 0x0000_00FF,
+        y = 0x0000_FF00,
+        delta_x = 0x00FF_0000,
+        x = 0xFF00_0000
+    }
+
     private Vector3Int GetRandomPosition(int maxx, int maxz) 
     {
         int Randx = Random.Range(0, maxx);
@@ -27,66 +41,74 @@ public class MapGenerator
             yield return rd;
         }
     }
-    public RoomData[,] GenerateMap(Vector2Int Size)
+    public void GenerateMap(short Size)
     {
-        Vector2Int StartPosition = new Vector2Int(Random.Range(0, Size.x), Random.Range(0, Size.y));
+        int DataDirection;
+        int PerimetreAire;
+        byte SizeX;
+        byte SizeY;
+        uint PossibleMovement;
 
-        RoomData[,] Map = new RoomData[Size.x, Size.y];
-        Map[StartPosition.x, StartPosition.y] = new RoomData();
+        SizeX = (byte)(Size & (ushort)SizeMask.x);
+        SizeY = (byte)(Size & (ushort)SizeMask.y >> 8);
 
-        uint PossibleMovement = 0;
-        if (StartPosition.x > 0)
+        byte[,] Map = new byte[SizeX, SizeY];
+
+        DataDirection = (byte)Random.Range(0, SizeX);
+        PerimetreAire = (byte)Random.Range(0, SizeY);
+
+        ushort StartPosition = (ushort)(DataDirection + (PerimetreAire << 8));
+
+        Map[DataDirection, PerimetreAire] = 0xAA;
+
+        PossibleMovement = 0;
+        if (DataDirection > 0)
         {
-            PossibleMovement += (byte)(StartPosition.x);
+            PossibleMovement += (byte)(DataDirection);
         }
-        if ((Size.x - 1) - StartPosition.x > 0)
+        if ((SizeX - 1) - DataDirection > 0)
         {
             PossibleMovement <<= 8;
-            PossibleMovement += (byte)((Size.x - 1) - StartPosition.x);
+            PossibleMovement += (byte)((SizeX - 1) - DataDirection);
         }
-        if (StartPosition.y > 0)
+        if (PerimetreAire > 0)
         {
             PossibleMovement <<= 8;
-            PossibleMovement += (byte)(StartPosition.y);
+            PossibleMovement += (byte)(PerimetreAire);
         }
-        if ((Size.y - 1) - StartPosition.y > 0)
+        if ((SizeY - 1) - PerimetreAire > 0)
         {
             PossibleMovement <<= 8;
-            PossibleMovement += (byte)((Size.y - 1) - StartPosition.y);
+            PossibleMovement += (byte)((SizeY - 1) - PerimetreAire);
         }
 
-        //PossibleMovement = 0x0000_1100;
-
-        int PerimetreAire = (Size.x * 2) + ((Size.y - 2) * 2); // a revoir
-        int DataDirection = 0;
+        PerimetreAire = (DataDirection * 2) + ((PerimetreAire - 2) * 2);
         for (int c = 0; c < PerimetreAire; c++)
         {
-            Debug.Log("Next Loop -----------------");
-
             if (PossibleMovement == 0) break;
 
-            if ((PossibleMovement & 0x0000_00FF) == 0)
+            if ((PossibleMovement & (uint)MovementMask.delta_y) == 0)
             {
                 PossibleMovement >>= 8;
             }
-            if ((PossibleMovement & 0x0000_FF00) == 0)
+            if ((PossibleMovement & (uint)MovementMask.y) == 0)
             {
                 DataDirection = (int)(PossibleMovement & 0xFFFF_0000);
                 PossibleMovement &= 0x0000_FFFF;
                 PossibleMovement += (uint)(DataDirection >> 8);
             }
-            if ((PossibleMovement & 0x00FF_0000) == 0)
+            if ((PossibleMovement & (uint)MovementMask.delta_x) == 0)
             {
-                DataDirection = (int)(PossibleMovement & 0xFF00_0000);
+                DataDirection = (int)(PossibleMovement & (uint)MovementMask.x);
                 PossibleMovement &= 0xFF00_FFFF;
                 PossibleMovement += (uint)(DataDirection >> 8);
             }
 
             DataDirection = 
-                ((PossibleMovement & 0x0000_00FF) > 0 ? 1 : 0) + 
-                ((PossibleMovement & 0x0000_FF00) >> 8   > 0 ? 1 : 0) + 
-                ((PossibleMovement & 0x00FF_0000) >> 16  > 0 ? 1 : 0) + 
-                ((PossibleMovement & 0xFF00_0000) >> 24  > 0 ? 1 : 0);
+                ((PossibleMovement & (uint)MovementMask.delta_y)       > 0 ? 1 : 0) + 
+                ((PossibleMovement & (uint)MovementMask.y)       >> 8  > 0 ? 1 : 0) + 
+                ((PossibleMovement & (uint)MovementMask.delta_x) >> 16 > 0 ? 1 : 0) + 
+                ((PossibleMovement & (uint)MovementMask.x)       >> 24 > 0 ? 1 : 0);
 
             DataDirection = Random.Range(0, DataDirection);
             DataDirection = (DataDirection == 0) ? 0 : 8 * DataDirection;
@@ -94,6 +116,30 @@ public class MapGenerator
             //DataDirection = (int)((PossibleMovement & byte.MaxValue << DataDirection) >> DataDirection);
 
             PossibleMovement -= (uint)(1 << DataDirection);
+
+            // 0x0000_0001 -> 0xFF00
+            // 0x0000_0100 -> 0xFF00
+            // 0x0001_0000 -> 0x00FF
+            // 0x0100_0000 -> 0x00FF
+
+            switch (1 << DataDirection)
+            {
+                case 0x0000_0001: // MovementMask.delta_y
+                    //ushort a = (ushort)SizeMask.y;
+
+
+                    //Map[(StartPosition & (ushort)SizeMask.x), (StartPosition & (ushort)SizeMask.y) >> 8] = 0xBB;
+                    
+                    break;
+                case 0x0000_0100: // MovementMask.y
+                    break;
+                case 0x0001_0000: // MovementMask.delta_x
+                    break;
+                case 0x0100_0000: // MovementMask.x
+                    break;
+            }
+
+            //Debug.Log(1 << DataDirection);
 
             /*
             Debug.Log($"PossibleMovement: " +
@@ -112,8 +158,8 @@ public class MapGenerator
             $"{(PossibleMovement & 0x0000_FF00) >> 8}," +
             $"{(PossibleMovement & 0x0000_00FF)} == 0 ? {PossibleMovement == 0}");
         */
-        
-        return Map;
+
+        //return Map;
     }
 
 
@@ -160,7 +206,7 @@ public class MapGenerator
         }
         else
         {
-            long RandomNumber = CustomRandom.xorshf8();
+            long RandomNumber = 0;
             int FormatedNumber = 
                 ((RandomNumber % 2 == 0) ? (int)RelativePosition.North : 0) + 
                 ((RandomNumber % 3 == 0) ? (int)RelativePosition.South : 0) +

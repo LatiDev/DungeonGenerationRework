@@ -1,0 +1,4 @@
+0,003ms  - 0b 	per frames
+0,006ms  - 84b 	per frames
+0,011ms  - 0.9k per frames
+0,120ms  - 4k 	per frames
