@@ -57,9 +57,9 @@ public class MapGenerator
     }
     public void GenerateMap(byte Size)
     {
-        int DataDirection;
+        int RandVariable;
+        uint Mask;
         ushort PerimetreAire;
-        uint IDMovement = 0xAABB_CCDD;
         byte PositionX;
         byte PositionY;
         ushort cells;
@@ -67,8 +67,12 @@ public class MapGenerator
 
         byte[,] Map = new byte[Size, Size];
 
-        PositionX = (byte)Random.Range(0, Size);
-        PositionY = (byte)Random.Range(0, Size);
+        //PositionX = (byte)Random.Range(0, Size);
+        //PositionY = (byte)Random.Range(0, Size);
+
+        PositionX = 3;
+        PositionY = 2;
+
 
         Map[PositionX, PositionY] = (byte)RoomCode.start;
 
@@ -88,105 +92,101 @@ public class MapGenerator
         PerimetreAire = (ushort)(Size > 1? (Size-1) * 4 : 1);
         for (cells = 0; cells < PerimetreAire; cells++)
         {
-            Debug.Log("Next Loop -----");
+            //Debug.Log("Loop ------------------------------------");
             if (PossibleMovement == 0) break;
 
+            /*
             Debug.Log($"PossibleMovement: " +
             $"x:{(PossibleMovement & (uint)MovementMask.x) >> 24}," +
             $"dx:{(PossibleMovement & (uint)MovementMask.delta_x) >> 16}," +
             $"y:{(PossibleMovement & (uint)MovementMask.y) >> 8}," +
             $"dy:{(PossibleMovement & (uint)MovementMask.delta_y)}");
+            */
 
+            RandVariable =
+                ((PossibleMovement & (uint)MovementMask.delta_y)    == 0 ? 0 : 1) +
+                ((PossibleMovement & (uint)MovementMask.y)          == 0 ? 0 : 1) +
+                ((PossibleMovement & (uint)MovementMask.delta_x)    == 0 ? 0 : 1) +
+                ((PossibleMovement & (uint)MovementMask.x)          == 0 ? 0 : 1);
 
-            if ((PossibleMovement & (uint)MovementMask.delta_y) == 0)
+            //Debug.Log($"Is Valid? : {RandVariable}");
+            if (RandVariable == 4)
             {
-                PossibleMovement >>= 8;
-                IDMovement >>= 8;
+                RandVariable = (byte)Random.Range(0, RandVariable);
+                RandVariable = (RandVariable == 0) ? 0 : 8 * RandVariable;
+                PossibleMovement -= (uint)(1 << RandVariable);
             }
-            if ((PossibleMovement & (uint)MovementMask.y) == 0)
+            else
             {
-                DataDirection = (int)(PossibleMovement & 0xFFFF_0000);
-                PossibleMovement &= 0x0000_FFFF;
-                PossibleMovement += (uint)(DataDirection >> 8);
+                Mask = 0;
+                for (uint m = 0xFF; m != 0x0000_0000; m <<= 8)
+                {
+                    if ((PossibleMovement & m) == 0)
+                    {
+                        if (m == 0x000_00FF)
+                            Mask = 0xFFFF_FF00;
+                        else if (m == 0x0000_FF00)
+                            Mask = 0xFFFF_0000;
+                        else if (m == 0x00FF_0000)
+                            Mask = 0xFF00_0000;
+                        RandVariable = (int)(PossibleMovement & Mask);
+                        PossibleMovement &= (0xFFFF_FFFF ^ Mask);
+                        PossibleMovement += (uint)(RandVariable) >> 8;
+                    }                                        
+                }
 
-                DataDirection = (int)(IDMovement & 0xFFFF_0000);
-                IDMovement &= 0x0000_FFFF;
-                IDMovement += (uint)(DataDirection >> 8);
+                /*
+                Debug.Log($"Rectify PossibleMovement: " +
+                $"x:{(PossibleMovement & (uint)MovementMask.x) >> 24}," +
+                $"dx:{(PossibleMovement & (uint)MovementMask.delta_x) >> 16}," +
+                $"y:{(PossibleMovement & (uint)MovementMask.y) >> 8}," +
+                $"dy:{(PossibleMovement & (uint)MovementMask.delta_y)}");
+                */                
+
+                RandVariable =
+                    ((PossibleMovement & (uint)MovementMask.delta_y)          > 0 ? 1 : 0) +
+                    ((PossibleMovement & (uint)MovementMask.y)          >> 8  > 0 ? 1 : 0) +
+                    ((PossibleMovement & (uint)MovementMask.delta_x)    >> 16 > 0 ? 1 : 0) +
+                    ((PossibleMovement & (uint)MovementMask.x)          >> 24 > 0 ? 1 : 0);
+
+
+                RandVariable = (byte)Random.Range(0, RandVariable);
+                RandVariable = (RandVariable == 0) ? 0 : 8 * RandVariable;
+                PossibleMovement -= (uint)(1 << RandVariable);
+
+                /*
+
+                Debug.Log($"-1 PossibleMovement: " +
+                $"x:{(PossibleMovement & (uint)MovementMask.x) >> 24}," +
+                $"dx:{(PossibleMovement & (uint)MovementMask.delta_x) >> 16}," +
+                $"y:{(PossibleMovement & (uint)MovementMask.y) >> 8}," +
+                $"dy:{(PossibleMovement & (uint)MovementMask.delta_y)}");
+             
+                Mask >>= 8;
+                RandVariable = (int)(PossibleMovement & Mask);
+                PossibleMovement &= (0xFFFF_FFFF - Mask);
+                PossibleMovement += (uint)(RandVariable << 8);
+
+
+                Debug.Log($"Recover PossibleMovement: " +
+                $"x:{(PossibleMovement & (uint)MovementMask.x) >> 24}," +
+                $"dx:{(PossibleMovement & (uint)MovementMask.delta_x) >> 16}," +
+                $"y:{(PossibleMovement & (uint)MovementMask.y) >> 8}," +
+                $"dy:{(PossibleMovement & (uint)MovementMask.delta_y)}");
+
+                */
             }
-            if ((PossibleMovement & (uint)MovementMask.delta_x) == 0)
-            {
-                DataDirection = (int)(PossibleMovement & (uint)MovementMask.x);
-                PossibleMovement &= 0xFF00_FFFF;
-                PossibleMovement += (uint)(DataDirection >> 8);
 
-                DataDirection = (int)(IDMovement & (uint)MovementMask.x);
-                IDMovement &= 0xFF00_FFFF;
-                IDMovement += (uint)(DataDirection >> 8);
-            }
-
-            DataDirection = 
-                ((PossibleMovement & (uint)MovementMask.delta_y)       > 0 ? 1 : 0) + 
-                ((PossibleMovement & (uint)MovementMask.y)       >> 8  > 0 ? 1 : 0) + 
-                ((PossibleMovement & (uint)MovementMask.delta_x) >> 16 > 0 ? 1 : 0) + 
-                ((PossibleMovement & (uint)MovementMask.x)       >> 24 > 0 ? 1 : 0);
-
-            DataDirection = (byte)Random.Range(0, DataDirection);
-            DataDirection = (DataDirection == 0) ? 0 : 8 * DataDirection;
-            //Mask = (uint)(1 << DataDirection);
-            //DataDirection = (int)((PossibleMovement & byte.MaxValue << DataDirection) >> DataDirection);
-            PossibleMovement -= (uint)(1 << DataDirection);
-
-            // AABB_CCDD | xxyy
-            switch ((IDMovement & (0xFF << DataDirection)) >> DataDirection)
-            {
-                case (uint)MovementCodeMask.x:
-                    Debug.Log("Chosse Left");
-                    PositionX -= 1;
-                    break;
-                case (uint)MovementCodeMask.delta_x:
-                    Debug.Log("Chosse Right");
-                    PositionX += 1;
-                    break;
-                case (uint)MovementCodeMask.y:
-                    Debug.Log("Chosse Up");
-                    PositionY += 1;
-                    break;
-                case (uint)MovementCodeMask.delta_y:
-                    Debug.Log("Chosse Down");
-                    PositionY -= 1;
-                    break;
-            }
-
-            
-            Debug.Log($"StartPosition: X:{PositionX}, Y:{PositionY}");
-
-            
-            Debug.Log($"IDMovement: " +
-            $"{(IDMovement & (uint)MovementMask.x) >> 24}," +
-            $"{(IDMovement & (uint)MovementMask.delta_x) >> 16}," +
-            $"{(IDMovement & (uint)MovementMask.y) >> 8}," +
-            $"{(IDMovement & (uint)MovementMask.delta_y)}");
-            
-
-            Debug.Log($"PossibleMovement: " +
+            /*
+            Debug.Log($"END PossibleMovement: " +
             $"x:{(PossibleMovement & (uint)MovementMask.x) >> 24}," +
             $"dx:{(PossibleMovement & (uint)MovementMask.delta_x) >> 16}," +
             $"y:{(PossibleMovement & (uint)MovementMask.y) >> 8}," +
             $"dy:{(PossibleMovement & (uint)MovementMask.delta_y)}");
-            
-            
+            */
+
             Map[PositionX, PositionY] = (byte)RoomCode.simpleRoom;
-            
-            //Debug.Log($"StartPosition: {(StartPosition & (ushort)SizeMask.x) >> 8}, {StartPosition & (ushort)SizeMask.y}");
         }
-
-        /*
-        Debug.Log($"Exit with: " +
-            $"{(PossibleMovement & 0xFF00_0000) >> 24}," +
-            $"{(PossibleMovement & 0x00FF_0000) >> 16}," +
-            $"{(PossibleMovement & 0x0000_FF00) >> 8}," +
-            $"{(PossibleMovement & 0x0000_00FF)} == 0 ? {PossibleMovement == 0}");
-        */
 
         //return Map;
     }

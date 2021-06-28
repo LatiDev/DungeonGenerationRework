@@ -1,0 +1,53 @@
+X = 0102_0304
+
+no hole so:
+rndNumber = Random number from 0 to 3 (lets say 1)
+X -= (1 << rndNumber) (X becomes 0102_0204)
+
+X = 0102_0204
+X = 0102_0104
+X = 0102_0004
+
+ther is a hole:
+save FFFF_0000 of 0102_0004 (so thats 0102_0000)
+throw 0000_FFFF at 0102_0004 (become 0000_0004)
+sb >> 8 with 0102_0000 (become 0001_0200)
+add 0000_0004 to 0001_0200 = 0001_0204
+
+CopyX should be 0001_0204
+rndNumber = Random number from 0 to 2
+Take CopyX -= 1 << rndNumber (imagine CopyX be 0001_0104)
+
+FFFF_0000 >> 8 = 00FF_FF00
+take 00FF_FF00 from CopyX (so 0001_0100)
+take 0001_0104 & FF00_00FF (so 0000_0004)
+CopyX <<= 8 (so 0101_0000)
+CopyX += 0000_0004 (so 0101_0004)
+
+X becomes Copy
+
+-------------------------------------------------------
+
+0000_0000 -> null
+0000_00FF -> >> 8
+0000_FF00 -> FFFF_0000 -> >> 8
+00FF_0000 -> FF00_0000 -> >> 8
+00FF_FF00 -> FF00_0000 -> >> 16
+00FF_FFFF -> FF00_0000 -> >> 24
+00FF_00FF -> FF00_FF00 -> >> 8 -> 00FF_0000 -> >> 8
+0000_FFFF -> FFFF_0000 -> >> 16
+
+-------------------------------------------------------
+
+0000_00FF -> FFFF_FF00
+0000_FF00 -> FFFF_0000
+00FF_0000 -> FF00_0000
+
+-------------------------------------------------------
+
+PossibleMovement = 1234_0078
+m == 0x0000_FF00
+Mask = 0xFFFF_0000
+RandVariable = 1234_0078 & 0xFFFF_0000 = 1234_0000
+PossibleMovement = 0000_0078;
+PossibleMovement = 0012_3478;
